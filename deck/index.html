@@ -127,11 +127,18 @@ ul.dia li::before{content:"";position:absolute;right:4px;top:.55em;width:11px;he
 .bio-row .p{height:150px}
 .bio-row .cm{height:104px}
 
-/* road chips */
-.road{display:flex;gap:14px;align-items:center;margin-top:22px;flex-wrap:wrap}
-.chip{border:2px solid var(--label);border-radius:6px;padding:8px 16px;font-size:23px;font-weight:700;color:var(--ink);background:var(--panel)}
-.chip b{color:var(--red);font-family:'Alef',sans-serif;margin-left:10px}
-.road .ar{font-size:30px;font-weight:700;color:var(--label)}
+/* route: the two parts of the lecture as two stations, light then dark (slide 4) */
+.route{display:flex;flex-direction:column;gap:34px;margin-top:10px}
+.stn{position:relative;display:grid;grid-template-columns:66px 1fr;gap:24px;align-items:center;background:var(--panel);border:1px solid var(--pline);border-radius:6px;box-shadow:0 12px 32px rgba(70,52,30,.09);padding:22px 30px}
+.stn .n{width:66px;height:66px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--red);color:#fff;font-family:Arial,'Helvetica Neue',sans-serif;font-weight:700;font-size:34px;line-height:1}
+.stn h4{font-weight:700;font-size:32px;line-height:1.25;color:var(--ink)}
+.stn p{font-size:28px;line-height:1.35;color:var(--ink2);margin-top:6px}
+.stn.dk{background:#2A241E;border-color:#2A241E}
+.stn.dk h4{color:var(--light)}
+.stn.dk p{color:var(--light2)}
+.stn.dk .r{color:var(--goldl)}
+.stn.dk .n{background:var(--goldl);color:#2A241E}
+.stn + .stn::before{content:"";position:absolute;right:62px;top:-35px;width:2px;height:34px;background:var(--label)}
 
 /* giants */
 .giants-lab{font-size:20px;font-weight:700;letter-spacing:2px;color:var(--label);margin-bottom:10px}
@@ -270,11 +277,10 @@ ul.dia li::before{content:"";position:absolute;right:4px;top:.55em;width:11px;he
 <div class="art st"><img src="assets/gen/meeting.webp" alt=""></div>
 <div class="tx">
 <h2 class="st">המפגש שבין טכנולוגיית הבינה המלאכותית למערכת המשפט</h2>
-<div class="panel bar pf">
-<p class="lead f">נתחיל אנקדוטלי ופשוט יחסית</p>
-<p class="lead f">ונסיים במורכב <span class="r">והמדאיג</span></p>
+<div class="route">
+<div class="stn f"><span class="n">1</span><div><h4>דוגמאות מן השטח</h4><p>נתחיל אנקדוטלי ופשוט יחסית</p></div></div>
+<div class="stn dk f"><span class="n">2</span><div><h4>העקרונות: ששת תנאי הלגיטימציה</h4><p>ונסיים במורכב <span class="r">והמדאיג</span></p></div></div>
 </div>
-<div class="road f"><span class="chip"><b>1</b>דוגמאות מן השטח</span><span class="ar">←</span><span class="chip"><b>2</b>העקרונות: ששת תנאי הלגיטימציה</span></div>
 </div>
 </div>
 </section>
