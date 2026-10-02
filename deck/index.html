@@ -207,6 +207,14 @@ ul.dia li::before{content:"";position:absolute;right:4px;top:.55em;width:11px;he
 .dark .num{font-size:44px}
 .trio .n{font-size:30px}
 
+/* opening clip: the video fills the stage; a play mark shows only if the browser blocked autoplay */
+.slide.clip{background:#000}
+.slide.clip video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+.clip-play{position:absolute;left:50%;top:50%;width:116px;height:116px;margin:-58px 0 0 -58px;border-radius:50%;background:rgba(20,16,12,.55);border:2px solid rgba(255,244,220,.75);pointer-events:none;transition:opacity .4s ease}
+.clip-play::after{content:"";position:absolute;left:44px;top:34px;border-style:solid;border-width:24px 0 24px 38px;border-color:transparent transparent transparent #FFF4DC}
+.slide.clip.playing .clip-play{opacity:0}
+body.clip-on #num,body.clip-on #bar,body.clip-on #help{opacity:0}
+
 /* ================= MECHANICS ================= */
 .f{opacity:0;transform:translateY(12px);filter:blur(3px);transition:opacity .5s ease,transform .5s ease,filter .5s ease}
 .f.vis{opacity:1;transform:none;filter:none}
@@ -234,6 +242,12 @@ ul.dia li::before{content:"";position:absolute;right:4px;top:.55em;width:11px;he
 <p class="tt-by st"><b>תום הגלעדי</b><span>חיפה · 6 באוקטובר 2026</span></p>
 </div>
 <div class="art st"><img src="assets/gen/chair.webp" alt=""></div>
+</section>
+
+<!-- 1b: opening clip, Meir Ariel's "עברנו את פרעה" (built 3.7.2026; source in 07_וידאו). Plays when the slide opens. -->
+<section class="slide clip">
+<video src="assets/video/pharaoh.mp4" poster="assets/video/pharaoh-poster.jpg" preload="auto" playsinline></video>
+<div class="clip-play"></div>
 </section>
 
 <!-- 2 -->
@@ -424,7 +438,7 @@ ul.dia li::before{content:"";position:absolute;right:4px;top:.55em;width:11px;he
 <div class="tx">
 <div class="kick st">הניסיון</div>
 <h2 class="st big">מאפיינו של המשפט</h2>
-<div class="panel bar pf"><p class="lead f">והמפגש עם איכותה של הבינה האנושית</p></div>
+<div class="panel bar pf"><p class="lead f">והמפגש עם איכותה של הבינה המלאכותית</p></div>
 </div>
 </div>
 </section>
@@ -913,21 +927,38 @@ ul.dia li::before{content:"";position:absolute;right:4px;top:.55em;width:11px;he
   });
   var si = 0, fi = 0, prevSi = -1, lockHash = false;
   function frags(){ return Array.prototype.slice.call(slides[si].querySelectorAll('.f')); }
+  // Opening clip: plays (from the start, with sound) when its slide opens and pauses when you leave it.
+  // A browser allows sound only after a key press or click; if it refused, the next key or click starts the clip.
+  function clipOf(i){ return slides[i].querySelector('video'); }
+  function playClip(v){
+    var s = v.closest('.slide');
+    v.currentTime = 0;
+    var p = v.play();
+    if (p && p.then) { p.then(function(){ s.classList.add('playing'); }, function(){ s.classList.remove('playing'); }); }
+    else { s.classList.add('playing'); }
+  }
   function render(){
     if (ALL) { fi = frags().length; }
     slides.forEach(function(s, i){ s.classList.toggle('on', i === si); });
+    slides.forEach(function(s, i){ var v = clipOf(i); if (v && i !== si) { v.pause(); s.classList.remove('playing'); } });
+    document.body.classList.toggle('clip-on', !!clipOf(si));
     if (si !== prevSi) {
       slides.forEach(function(s){ s.classList.remove('enter'); });
       void slides[si].offsetWidth;
       slides[si].classList.add('enter');
       prevSi = si;
+      if (clipOf(si) && !ALL) { playClip(clipOf(si)); }
     }
     frags().forEach(function(f, i){ f.classList.toggle('vis', i < fi); });
     bar.style.width = ((si + 1) / slides.length * 100) + '%';
     num.textContent = (si + 1) + ' / ' + slides.length;
     lockHash = true; location.hash = (si + 1); setTimeout(function(){ lockHash = false; }, 0);
   }
-  function next(){ if (fi < frags().length) { fi++; } else if (si < slides.length - 1) { si++; fi = 0; } render(); }
+  function next(){
+    var v = clipOf(si);
+    if (v && !ALL && v.paused && !v.ended && !slides[si].classList.contains('playing')) { playClip(v); return; }
+    if (fi < frags().length) { fi++; } else if (si < slides.length - 1) { si++; fi = 0; } render();
+  }
   function prev(){ if (fi > 0) { fi--; } else if (si > 0) { si--; fi = frags().length; } render(); }
   function go(n){ si = Math.max(0, Math.min(slides.length - 1, n)); fi = frags().length; render(); }
   // RTL: right arrow = forward, left arrow = back
