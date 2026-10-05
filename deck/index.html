@@ -252,7 +252,10 @@ body.pv-on{background:#14110E;overflow:hidden}
 .pv-cur iframe,.pv-nxt iframe{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:6px;pointer-events:none;background:#F3EEE5}
 .pv-nxt-row{display:flex;align-items:center;gap:10px}
 .pv-lab{font-size:16px;font-weight:700;letter-spacing:2px;color:#CBBFA9}
-.pv-title{font-size:20px;font-weight:700;color:#F3EEE5;line-height:1.3}
+.pv-title{font-size:20px;font-weight:700;color:#F3EEE5;line-height:1.3;min-width:0}
+.pv-nhead{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.pv-nhead .pv-btn{flex:none;font-size:16px;padding:4px 14px}
+.pv-btn[aria-pressed="true"]{background:#F0CD80;border-color:#F0CD80;color:#14110E}
 .pv-notes-wrap{display:flex;flex-direction:column;gap:8px;min-height:0}
 /* the notes never scroll: a script picks the largest font size, in one, two or three columns, at which all of it fits */
 .pv-notes{flex:1;min-height:0;overflow:hidden;background:#1E1A16;border:1px solid #3A322A;border-radius:8px;padding:10px 16px;font-size:22px;line-height:1.36;column-gap:24px;column-rule:1px solid #3A322A;column-fill:auto}
@@ -456,7 +459,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
 <div class="art st"><img src="assets/gen/steam.webp" alt=""></div>
 </div>
 <aside class="notes">
-<p class="gist">פרדוקס ג'בונס, ולמה הוא נוגע לבתי המשפט.</p><dl><dt>ויליאם סטנלי ג'בונס, 1865, על שאלת הפחם</dt><dd>מנועי קיטור יעילים יותר לא הקטינו את צריכת הפחם באנגליה, אלא הגדילו אותה, כי השימוש בפחם נעשה משתלם יותר.</dd><dt>ערעור זול וזמין - יותר ערעורים, יותר תביעות</dt><dd>כשהגשת ערעור כמעט לא עולה כלום, יהיו הרבה יותר ערעורים ותביעות קטנות. כי עכשיו אפשר.</dd></dl>
+<p class="gist">פרדוקס ג'בונס, ולמה הוא נוגע לבתי המשפט.</p><dl><dt data-step="1">ויליאם סטנלי ג'בונס, 1865, על שאלת הפחם</dt><dd>מנועי קיטור יעילים יותר לא הקטינו את צריכת הפחם באנגליה, אלא הגדילו אותה, כי השימוש בפחם נעשה משתלם יותר.</dd><dt>ערעור זול וזמין - יותר ערעורים, יותר תביעות</dt><dd>כשהגשת ערעור כמעט לא עולה כלום, יהיו הרבה יותר ערעורים ותביעות קטנות. כי עכשיו אפשר.</dd></dl>
 </aside>
 </section>
 
@@ -816,7 +819,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
 <dt>הרציונליזציה האנושית - בת תקיפה, גם אם אינה בת אימות</dt>
 <dd>אולי לעולם לא נוכל לאמת שאלה הטעמים שבאמת הכריעו - אבל את מה שנכתב אפשר לתקוף. וכל ההבדל בין סמכות לגיטימית לשליטה מונח בפער הזה: בין בדיה שאפשר לבקר לבין עובדה שחסינה מפני ביקורת.</dd>
 </dl>
-<p class="example"><b>דוגמה מהמאמר:</b> בפרק ד אני מציג את ההתנגדות במלוא כוחה, ומביא לטובתה מחקר על ועדות שחרורים: שיעור ההחלטות המיטיבות נשחק בהתמדה לאורך המשמרת ומתאושש אחרי הפסקות אוכל. המחקר זכה גם לביקורת מתודולוגית, על גודל האפקט ועל כך שסדר התיקים לא היה אקראי. והתשובה שם: ההטיה האנושית פועלת בתוך פרקטיקת תיקון פומבית, ואילו בפרשת לומיס פרקטיקת התיקון לא נכשלה - היא נחסמה על הסף, מטעמים קנייניים.</p>
+<p class="example" data-step="0"><b>דוגמה מהמאמר:</b> בפרק ד אני מציג את ההתנגדות במלוא כוחה, ומביא לטובתה מחקר על ועדות שחרורים: שיעור ההחלטות המיטיבות נשחק בהתמדה לאורך המשמרת ומתאושש אחרי הפסקות אוכל. המחקר זכה גם לביקורת מתודולוגית, על גודל האפקט ועל כך שסדר התיקים לא היה אקראי. והתשובה שם: ההטיה האנושית פועלת בתוך פרקטיקת תיקון פומבית, ואילו בפרשת לומיס פרקטיקת התיקון לא נכשלה - היא נחסמה על הסף, מטעמים קנייניים.</p>
 </aside>
 </section>
 
@@ -907,7 +910,8 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
 <dt>זיהום נתוני האימון וקריסת מודל</dt>
 <dd>השלב הרביעי סוגר את המעגל: מודלי הדור הבא מתאמנים על טקסטים שנאספים מן הרשת ומן המאגרים, כלומר גם על תוצרי הדור הקודם, כולל הבדיות. שומאילוב ועמיתיו הראו שאימון כזה מוביל ל"קריסת מודל", שבה הנדיר והחריג נעלמים ראשונים; מחקר המשך הראה שכשהנתונים האמיתיים נשמרים לצד הסינתטיים ההידרדרות נבלמת, אבל בלימה איננה ריפוי. ובמשפט, הנדיר והחריג הם בדיוק המקרים הקשים וההבחנות הדקות - חומר הגלם של ההתפתחות המשפטית.</dd>
 </dl>
-<p class="example"><b>דוגמה מהמאמר:</b> בישראל, בראשית 2025, נדרש בית המשפט העליון לעתירה שנשענה על שורה ארוכה של אסמכתאות פגומות - בהן פסקי דין שאינם קיימים וציטוטים "שלא היו ולא נבראו" - שמקורן, כלשון בית המשפט, בסבירות גבוהה בכלי בינה מלאכותית; ובית המשפט הזהיר מסילוק על הסף ומהוצאות אישיות. בתוך חודשים הפכה האזהרה למעשה: בקשה לאישור תובענה ייצוגית סולקה על הסף בשל "ציטוטים מומצאים מפסיקה שאינה קיימת", ובתיק אחר חויבה עורכת דין בהוצאות אישיות בשל סיכומים שנשענו על פסקי דין בדויים. ובארצות הברית כבר נחצה הקו אל ההחלטה השיפוטית עצמה: צו של ערכאה דיונית בג'ורג'יה, שנסמך על שני פסקי דין שאינם קיימים, בוטל בערעור, וחוות דעת פדרלית נמשכה אחרי שנמצאו בה ציטוטים בדויים, שהוכנו בסיוע מודל שפה בלשכת השופט עצמו.</p>
+<p class="example" data-step="2"><b>דוגמה מהמאמר:</b> בישראל, בראשית 2025, נדרש בית המשפט העליון לעתירה שנשענה על שורה ארוכה של אסמכתאות פגומות - בהן פסקי דין שאינם קיימים וציטוטים "שלא היו ולא נבראו" - שמקורן, כלשון בית המשפט, בסבירות גבוהה בכלי בינה מלאכותית; ובית המשפט הזהיר מסילוק על הסף ומהוצאות אישיות. בתוך חודשים הפכה האזהרה למעשה: בקשה לאישור תובענה ייצוגית סולקה על הסף בשל "ציטוטים מומצאים מפסיקה שאינה קיימת", ובתיק אחר חויבה עורכת דין בהוצאות אישיות בשל סיכומים שנשענו על פסקי דין בדויים.</p>
+<p class="example" data-step="3"><b>המשך הדוגמה:</b> ובארצות הברית כבר נחצה הקו אל ההחלטה השיפוטית עצמה: צו של ערכאה דיונית בג'ורג'יה, שנסמך על שני פסקי דין שאינם קיימים, בוטל בערעור, וחוות דעת פדרלית נמשכה אחרי שנמצאו בה ציטוטים בדויים, שהוכנו בסיוע מודל שפה בלשכת השופט עצמו.</p>
 </aside>
 </section>
 
@@ -979,7 +983,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
 <dt>הסכנה: משפט שרשומותיו מזוהמות יפעל ביעילות גוברת לזמן מה - בעוד סמכותו נשחקת</dt>
 <dd>ויש הבדל נוסף, הסמוי מכולם: טעות ציטוט מן המאה התשע-עשרה נשארה במקומה, ואילו הזיהום הסינתטי הופך לחומר האימון של המודלים הבאים - ומשחית את מנגנון התיקון עצמו, את הרשומה שמולה בודקים. משפט כזה יכול להמשיך לעבוד, ואפילו ביעילות גוברת, אבל כבקרה חברתית יעילה - לא כמקור סמכות שאפשר לתת בו אמון. ושימו לב: החזית הזאת לא תלויה בשום החלטה להכניס בינה מלאכותית לשפיטה; הזיהום נכנס דרך כתבי הטענות, המאגרים ונתוני האימון, בין שישב אי פעם שופט מול מודל ובין שלא.</dd>
 </dl>
-<p class="example"><b>דוגמה מהמאמר:</b> לקנה המידה - גם כלי המחקר המשפטי המסחריים, שמעגנים את תשובותיהם במאגר מאומת ושהיו אמורים לרפא את התופעה, הפיקו בדיות בכשישית עד כשליש מן המקרים.</p>
+<p class="example" data-step="1"><b>דוגמה מהמאמר:</b> לקנה המידה -גם כלי המחקר המשפטי המסחריים, שמעגנים את תשובותיהם במאגר מאומת ושהיו אמורים לרפא את התופעה, הפיקו בדיות בכשישית עד כשליש מן המקרים.</p>
 </aside>
 </section>
 
@@ -1233,7 +1237,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
 <dt>שעלותה האנרגטית רבה</dt>
 <dd>שבירה כזאת לא קורית מעצמה: שופט שסוטה מן ההלכה ומנמק את הסטייה בנימוק חדש, שיעמוד למבחן של ערכאות ושל דורות; דעת מיעוט שנדחתה, נשמרה ברשומה ונעשתה כעבור דור הלכה מחייבת. אלה לא מקרי גבול - זו דרך המלך של התפתחות המשפט. ובעולם המנובא, המתדיין שהיה פעם חלוץ של הלכה מתהווה נעשה חריג שהמערכת מתוכננת לסנן.</dd>
 </dl>
-<p class="example"><b>דוגמה מהמאמר:</b> תחקיר "המכונה המוטה" על כלי להערכת מסוכנות: מערכת שלמדה מדפוסי מעצר ואכיפה היסטוריים העתיקה אותם אל ניקוד הסיכון של נאשמי ההווה - וההווה הזה יהיה נתון האימון של המחר. כך נוצרת לולאה סגורה, שבה הדפוס אינו נשבר אלא משכפל את עצמו.</p>
+<p class="example" data-step="1"><b>דוגמה מהמאמר:</b> תחקיר "המכונה המוטה" על כלי להערכת מסוכנות: מערכת שלמדה מדפוסי מעצר ואכיפה היסטוריים העתיקה אותם אל ניקוד הסיכון של נאשמי ההווה - וההווה הזה יהיה נתון האימון של המחר. כך נוצרת לולאה סגורה, שבה הדפוס אינו נשבר אלא משכפל את עצמו.</p>
 </aside>
 </section>
 
@@ -1519,7 +1523,56 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
     var base = location.href.split('#')[0].split('?')[0];
     var counts = slides.map(function(s){ return s.querySelectorAll('.f').length; });
     var notes = slides.map(function(s){ var a = s.querySelector('aside.notes'); return a ? a.innerHTML : ''; });
-    var titles = slides.map(function(s){ var h = s.querySelector('h1, h2'); return h ? h.textContent.replace(/\s+/g, ' ').trim() : ''; });
+    // Notes that follow the clicks: each explanation appears with the click that reveals its item on the slide,
+    // so only the item on screen now is explained, in large print. An item's heading in the notes (dt) is matched to
+    // the slide text it explains; the opening line belongs to the slide before any click, and an example from the
+    // article goes with the last item. data-step on a note element overrides the match (0 = before the first click).
+    function bare(t){ return (t || '').replace(/[^א-תA-Za-z0-9]/g, ''); }
+    function noteSteps(s, n){
+      var a = s.querySelector('aside.notes');
+      if (!a || !n) { return null; }
+      var frs = Array.prototype.slice.call(s.querySelectorAll('.f')).map(function(f){ return bare(f.textContent); });
+      var units = [], last = 0, inList = false, i;
+      Array.prototype.slice.call(a.children).forEach(function(el){
+        if (el.tagName !== 'DL') {
+          var at = el.getAttribute('data-step');
+          units.push({ step: at !== null ? +at : (inList ? n : 0), dl: false, html: el.outerHTML });
+          return;
+        }
+        inList = true;
+        Array.prototype.slice.call(el.children).forEach(function(k){
+          if (k.tagName !== 'DT') { if (units.length && units[units.length - 1].dl) { units[units.length - 1].html += k.outerHTML; } return; }
+          var given = k.getAttribute('data-step'), step = 0, t = bare(k.textContent), j = -1;
+          if (given !== null) { step = +given; }
+          else if (t) {
+            // the items come in the slide's order, so look from the last match onwards first
+            for (i = last; i < frs.length && j < 0; i++) { if (frs[i].indexOf(t) >= 0) { j = i; } }
+            for (i = 0; i < last && j < 0; i++) { if (frs[i].indexOf(t) >= 0) { j = i; } }
+            if (j >= 0) { step = j + 1; last = j; }
+          }
+          units.push({ step: step, dl: true, html: k.outerHTML });
+        });
+      });
+      // a slide whose notes do not spread over its clicks keeps showing all its notes
+      return units.some(function(u){ return u.dl && u.step > 0; }) ? units : null;
+    }
+    var steps = slides.map(function(s, i){ return noteSteps(s, counts[i]); });
+    function notesView(){
+      var u = steps[S.si];
+      if (!u || S.all) { return { key: 'all', html: notes[S.si] }; }
+      var k = Math.max(0, Math.min(S.fi, counts[S.si]));
+      // a click that has no explanation of its own keeps the previous one on screen
+      while (k > 0 && !u.some(function(x){ return x.step === k; })) { k--; }
+      var html = '', open = false;
+      u.forEach(function(x){
+        if (x.step !== k) { return; }
+        if (x.dl !== open) { html += open ? '</dl>' : '<dl>'; open = x.dl; }
+        html += x.html;
+      });
+      if (open) { html += '</dl>'; }
+      return html ? { key: k, html: html } : { key: 'all', html: notes[S.si] };
+    }
+    var titles =slides.map(function(s){ var h = s.querySelector('h1, h2'); return h ? h.textContent.replace(/\s+/g, ' ').trim() : ''; });
     var pv = document.createElement('div');
     pv.id = 'pv';
     pv.innerHTML =
@@ -1544,35 +1597,38 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
           '</div>' +
         '</div>' +
         '<div class="pv-notes-wrap">' +
-          '<div class="pv-title" id="pvTitle"></div>' +
+          '<div class="pv-nhead">' +
+            '<div class="pv-title" id="pvTitle"></div>' +
+            '<button type="button" class="pv-btn" id="pvAll" aria-pressed="false" title="כל ההערות של השקף, במקום רק ההסבר של הסעיף שנחשף עכשיו">כל ההערות</button>' +
+          '</div>' +
           '<div class="pv-notes" id="pvNotes"></div>' +
         '</div>' +
       '</div>';
     document.body.appendChild(pv);
     var $ = function(id){ return document.getElementById(id); };
     var cur = $('pvCur'), nxt = $('pvNxt');
-    var host = window.opener || null, S = { si: 0, fi: 0 };
+    var host = window.opener || null, S = { si: 0, fi: 0, all: false };
     var startN = parseInt(location.hash.slice(1), 10);
     if (startN >= 1 && startN <= slides.length) { S.si = startN - 1; }
     cur.src = base + '?embed#' + (S.si + 1);
     nxt.src = base + '?embed&all#' + Math.min(S.si + 2, slides.length);
     function linked(){ return !!(host && !host.closed); }
     function post(frame, msg){ try { frame.contentWindow.postMessage(msg, '*'); } catch (err) {} }
-    // The notes must never need scrolling, and their size must never jump around. The font size is worked out from
-    // the amount of text and the size of the box - no fine measurement that could change from one moment to the next -
-    // and then one measured check may only make it smaller, so the text can never spill out of the box.
-    // The result is kept per slide and box size, and recalculated only on a new slide, a resized window or a return
-    // to the window. Never on a timer: a timer-driven re-check made the size flip back and forth on Tom's screen.
-    function overflows(box){
+    // The notes must never need scrolling, and their size must never jump around. The font size starts from an
+    // estimate on the safe side (the amount of text and the size of the box), is taken up one step at a time while
+    // everything still fits with half a line to spare, and is taken down if anything spills over.
+    // The result is kept per slide, click and box size, and recalculated only on a new view, a resized window or a
+    // return to the window. Never on a timer: a timer-driven re-check made the size flip back and forth on Tom's screen.
+    function overflows(box, spare){
       if (box.scrollHeight > box.clientHeight + 1 || box.scrollWidth > box.clientWidth + 1) { return true; }
-      var r = box.getBoundingClientRect(), kids = box.querySelectorAll('p, dt, dd');
+      var r = box.getBoundingClientRect(), kids = box.querySelectorAll('p, dt, dd'), bottom = r.bottom + 1 - (spare || 0);
       for (var i = 0; i < kids.length; i++) {
         var k = kids[i].getBoundingClientRect();
-        if (k.left < r.left - 1 || k.right > r.right + 1 || k.bottom > r.bottom + 1) { return true; }
+        if (k.left < r.left - 1 || k.right > r.right + 1 || k.bottom > bottom) { return true; }
       }
       return false;
     }
-    var fitCache = {};
+    var fitCache = {}, viewKey = 'all';
     function estimate(box, chars, cols){
       var w = box.clientWidth - 40, h = box.clientHeight - 20;
       // a character takes about half the font size in width and the line height (1.36) in height;
@@ -1583,7 +1639,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
     function fitNotes(){
       var box = $('pvNotes');
       if (document.visibilityState === 'hidden' || box.clientHeight < 60 || box.clientWidth < 120) { return; }
-      var key = S.si + ':' + box.clientWidth + 'x' + box.clientHeight, hit = fitCache[key];
+      var key = S.si + ':' + viewKey + ':' + box.clientWidth + 'x' + box.clientHeight, hit = fitCache[key];
       if (hit) { box.style.columnCount = hit.cols; box.style.fontSize = hit.size + 'px'; return; }
       var chars = box.textContent.replace(/\s+/g, ' ').trim().length + box.querySelectorAll('p, dt, dd').length * 25;
       var cols = 1, size = estimate(box, chars, 1);
@@ -1591,6 +1647,11 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
       if (box.clientWidth >= 900 && (box.clientWidth - 40) / (0.52 * size) > 95) { cols = 2; size = estimate(box, chars, 2); }
       box.style.columnCount = cols;
       box.style.fontSize = size + 'px';
+      for (var grown = 0; size < 40 && grown < 20; grown++) {
+        box.style.fontSize = (size + 1) + 'px';
+        if (overflows(box, (size + 1) * 0.68)) { box.style.fontSize = size + 'px'; break; }
+        size++;
+      }
       var steps = 0;
       while (steps < 12 && size > 12 && overflows(box)) { size--; steps++; box.style.fontSize = size + 'px'; }
       // twelve steps down means the measuring itself was off (a hidden or moving window): do not keep that result
@@ -1608,7 +1669,14 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
       var left = counts[S.si] - S.fi;
       $('pvLeft').textContent = left > 1 ? ('עוד ' + left + ' לחיצות בשקף') : (left === 1 ? 'עוד לחיצה אחת בשקף' : 'הלחיצה הבאה עוברת שקף');
       $('pvTitle').textContent = titles[S.si] || ('שקף ' + (S.si + 1));
-      $('pvNotes').innerHTML = notes[S.si] || '<p class="pv-empty">אין הערות לשקף הזה.</p>';
+      var view = notesView();
+      // a new view goes in only when it differs, so a repeated message does not redraw the notes under the eye
+      if (view.key !== viewKey || $('pvNotes').getAttribute('data-si') !== String(S.si)) {
+        viewKey = view.key;
+        $('pvNotes').setAttribute('data-si', S.si);
+        $('pvNotes').innerHTML = view.html || '<p class="pv-empty">אין הערות לשקף הזה.</p>';
+      }
+      $('pvAll').style.visibility = steps[S.si] ? 'visible' : 'hidden';
       fitNotes();
       $('pvLink').textContent = linked() ? 'מחובר למצגת שעל המקרן' : 'מצב חזרה: אין חלון מצגת מחובר';
       $('pvOpen').style.display = linked() ? 'none' : '';
@@ -1653,6 +1721,13 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
     });
     $('pvNext').addEventListener('click', function(){ cmd('next'); });
     $('pvPrev').addEventListener('click', function(){ cmd('prev'); });
+    // all the notes of the slide at once, or only the explanation of the item on screen now (the default)
+    $('pvAll').addEventListener('click', function(){
+      S.all = !S.all;
+      this.setAttribute('aria-pressed', S.all ? 'true' : 'false');
+      this.blur();   // so that the space bar goes on advancing the slides, and does not press this button again
+      show();
+    });
     var t0 = Date.now();
     $('pvReset').addEventListener('click', function(){ t0 = Date.now(); tick(); });
     function two(x){ return (x < 10 ? '0' : '') + x; }
