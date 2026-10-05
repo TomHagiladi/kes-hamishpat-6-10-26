@@ -234,7 +234,7 @@ body.embed #deck{box-shadow:none}
 /* presenter view (P key): a second window for the speaker */
 body.pv-on #stage,body.pv-on #bar,body.pv-on #num,body.pv-on #help,body.pv-on #fs,body.pv-on .skip-link{display:none}
 body.pv-on{background:#14110E;overflow:hidden}
-#pv{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr;gap:12px;padding:12px 16px 16px;color:#F3EEE5;font-family:'Alef',Arial,sans-serif}
+#pv{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr;gap:8px;padding:8px 12px 10px;color:#F3EEE5;font-family:'Alef',Arial,sans-serif}
 .pv-top{display:flex;flex-wrap:wrap;align-items:center;gap:18px;font-size:20px}
 .pv-time{font-family:Arial,sans-serif;font-size:36px;font-weight:700;color:#F0CD80;letter-spacing:1px}
 .pv-clock{font-family:Arial,sans-serif;font-size:22px;color:#CBBFA9}
@@ -244,18 +244,24 @@ body.pv-on{background:#14110E;overflow:hidden}
 .pv-btn{font:inherit;font-size:18px;color:#F3EEE5;background:#2A241E;border:1px solid #4A4036;border-radius:8px;padding:6px 16px;cursor:pointer;min-height:44px}
 .pv-go{background:#A3171D;border-color:#A3171D}
 .pv-btn:focus-visible{outline:3px solid #F0CD80;outline-offset:2px}
-.pv-main{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;min-height:0}
+/* a narrow column with the current slide (half its earlier size) and a small next-slide thumbnail; the notes take the rest */
+.pv-main{display:grid;grid-template-columns:minmax(0,28%) minmax(0,1fr);gap:12px;min-height:0}
+.pv-col{display:flex;flex-direction:column;gap:10px;min-height:0}
 .pv-cur,.pv-nxt{position:relative;aspect-ratio:16/9;width:100%}
+.pv-nxt{width:32%;flex:none}
 .pv-cur iframe,.pv-nxt iframe{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:6px;pointer-events:none;background:#F3EEE5}
-.pv-side{display:flex;flex-direction:column;gap:8px;min-height:0}
+.pv-nxt-row{display:flex;align-items:center;gap:10px}
 .pv-lab{font-size:16px;font-weight:700;letter-spacing:2px;color:#CBBFA9}
-.pv-notes{flex:1;min-height:0;overflow:auto;background:#1E1A16;border:1px solid #3A322A;border-radius:8px;padding:14px 18px;font-size:21px;line-height:1.55}
-.pv-notes p,.pv-notes dd{font-size:21px;line-height:1.55;color:#F3EEE5}
-.pv-notes .gist{margin-bottom:8px;font-size:22px}
+.pv-title{font-size:20px;font-weight:700;color:#F3EEE5;line-height:1.3}
+.pv-notes-wrap{display:flex;flex-direction:column;gap:8px;min-height:0}
+/* the notes never scroll: a script picks the largest font size, in one, two or three columns, at which all of it fits */
+.pv-notes{flex:1;min-height:0;overflow:hidden;background:#1E1A16;border:1px solid #3A322A;border-radius:8px;padding:10px 16px;font-size:22px;line-height:1.36;column-gap:24px;column-rule:1px solid #3A322A;column-fill:auto}
+.pv-notes p,.pv-notes dd{font-size:1em;line-height:1.36;color:#F3EEE5}
+.pv-notes .gist{margin-bottom:.4em;font-size:1.05em}
 .pv-notes b,.pv-notes strong{color:#F0CD80}
-.pv-notes dt{font-weight:700;color:#F0CD80;margin-top:12px}
-.pv-notes dd{margin:2px 0 0}
-.pv-notes .example{margin-top:10px;font-size:18px;color:#CBBFA9}
+.pv-notes dt{font-weight:700;color:#F0CD80;margin-top:.4em;break-after:avoid}
+.pv-notes dd{margin:.05em 0 0}
+.pv-notes .example{margin-top:.4em;font-size:.92em;color:#CBBFA9}
 .pv-empty{color:#A89C8A}
 
 /* ================= MECHANICS ================= */
@@ -1516,11 +1522,16 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
         '<span class="pv-link" id="pvLink"></span>' +
       '</div>' +
       '<div class="pv-main">' +
-        '<div class="pv-cur"><iframe id="pvCur" title="השקף הנוכחי" tabindex="-1"></iframe></div>' +
-        '<div class="pv-side">' +
-          '<div class="pv-lab">השקף הבא</div>' +
-          '<div class="pv-nxt"><iframe id="pvNxt" title="השקף הבא" tabindex="-1"></iframe></div>' +
-          '<div class="pv-lab" id="pvTitle"></div>' +
+        '<div class="pv-col">' +
+          '<div class="pv-lab">על המסך</div>' +
+          '<div class="pv-cur"><iframe id="pvCur" title="השקף הנוכחי" tabindex="-1"></iframe></div>' +
+          '<div class="pv-nxt-row">' +
+            '<div class="pv-nxt"><iframe id="pvNxt" title="השקף הבא" tabindex="-1"></iframe></div>' +
+            '<div class="pv-lab">השקף הבא</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="pv-notes-wrap">' +
+          '<div class="pv-title" id="pvTitle"></div>' +
           '<div class="pv-notes" id="pvNotes"></div>' +
         '</div>' +
       '</div>';
@@ -1534,6 +1545,37 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
     nxt.src = base + '?embed&all#' + Math.min(S.si + 2, slides.length);
     function linked(){ return !!(host && !host.closed); }
     function post(frame, msg){ try { frame.contentWindow.postMessage(msg, '*'); } catch (err) {} }
+    // The notes must never need scrolling: try one, two and three columns, and for each find (by halving the range)
+    // the largest font size at which every line stays inside the box. Each extra column must earn its place by 1px.
+    function overflows(box){
+      if (box.scrollHeight > box.clientHeight + 1 || box.scrollWidth > box.clientWidth + 1) { return true; }
+      var r = box.getBoundingClientRect(), kids = box.querySelectorAll('p, dt, dd');
+      for (var i = 0; i < kids.length; i++) {
+        var k = kids[i].getBoundingClientRect();
+        if (k.left < r.left - 1 || k.right > r.right + 1 || k.bottom > r.bottom + 1) { return true; }
+      }
+      return false;
+    }
+    function fitNotes(){
+      var box = $('pvNotes'), width = box.clientWidth, best = null;
+      [1, 2, 3].forEach(function(n){
+        if (n > 1 && width / n < 260) { return; }
+        box.style.columnCount = n;
+        var lo = 12, hi = 40, ok = 0;
+        while (lo <= hi) {
+          var mid = (lo + hi) >> 1;
+          box.style.fontSize = mid + 'px';
+          if (overflows(box)) { hi = mid - 1; } else { ok = mid; lo = mid + 1; }
+        }
+        if (ok && (!best || ok - (n - 1) > best.size - (best.cols - 1))) { best = { size: ok, cols: n }; }
+      });
+      if (!best) { best = { size: 12, cols: width / 3 >= 260 ? 3 : 2 }; }
+      box.style.columnCount = best.cols;
+      box.style.fontSize = best.size + 'px';
+    }
+    var fitTimer;
+    addEventListener('resize', function(){ clearTimeout(fitTimer); fitTimer = setTimeout(fitNotes, 150); });
+    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(function(){ fitNotes(); }); }
     function show(){
       post(cur, { type: 'show', si: S.si, fi: S.fi });
       post(nxt, { type: 'show', si: Math.min(S.si + 1, slides.length - 1), fi: -1 });
@@ -1542,7 +1584,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
       $('pvLeft').textContent = left > 1 ? ('עוד ' + left + ' לחיצות בשקף') : (left === 1 ? 'עוד לחיצה אחת בשקף' : 'הלחיצה הבאה עוברת שקף');
       $('pvTitle').textContent = titles[S.si] || ('שקף ' + (S.si + 1));
       $('pvNotes').innerHTML = notes[S.si] || '<p class="pv-empty">אין הערות לשקף הזה.</p>';
-      $('pvNotes').scrollTop = 0;
+      fitNotes();
       $('pvLink').textContent = linked() ? 'מחובר למצגת שעל המקרן' : 'מצב חזרה: אין חלון מצגת מחובר';
       $('pvOpen').style.display = linked() ? 'none' : '';
     }
