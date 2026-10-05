@@ -224,12 +224,24 @@ body.clip-on #num,body.clip-on #bar,body.clip-on #help{opacity:0}
 .static .st,.static .f,.static .shaft,.static .pf{animation:none!important;transition:none!important}
 @media (prefers-reduced-motion:reduce){.f,.pf,.slide.enter .st,.slide.dark.on .shaft{transition:none;animation:none}}
 #bar{position:fixed;bottom:0;right:0;height:4px;background:#A3171D;transition:width .25s ease;z-index:9}
-#num{position:fixed;bottom:12px;left:18px;color:#8F8678;font-size:13px;letter-spacing:1px;z-index:9;font-family:'Alef',sans-serif}
-#help{position:fixed;bottom:12px;right:18px;color:#8F8678;font-size:13px;z-index:9;transition:opacity 1s ease}
+#num{position:fixed;bottom:12px;left:18px;color:#5E5245;background:rgba(243,238,229,.92);padding:2px 8px;border-radius:4px;font-size:13px;letter-spacing:1px;z-index:9;font-family:'Alef',sans-serif}
+#help{position:fixed;bottom:12px;right:18px;color:#5E5245;background:rgba(243,238,229,.92);padding:2px 8px;border-radius:4px;font-size:13px;z-index:9;transition:opacity 1s ease}
 #help.gone{opacity:0}
+
+/* ================= ACCESSIBILITY (SI 5568 / WCAG 2.0 AA) ================= */
+.skip-link{position:absolute;top:-100px;right:0;background:#A3171D;color:#fff;padding:12px 24px;font-weight:700;font-size:18px;z-index:200;text-decoration:none;font-family:'Alef',Arial,sans-serif}
+.skip-link:focus{top:0;outline:3px solid #F0CD80;outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid #A3171D;outline-offset:3px;border-radius:4px}
+#main-content:focus{outline:none}
+.a11y-link{position:absolute;bottom:22px;right:72px;font-size:16px;color:#5E5245;text-decoration:underline;font-family:'Alef',Arial,sans-serif}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
+<a href="#main-content" class="skip-link">דלג לתוכן הראשי</a>
+<main id="main-content" tabindex="-1">
+<p class="sr-only">מצגת. חץ ימינה מעביר לשקף הבא, וחץ שמאלה חוזר לשקף הקודם.</p>
 <div id="stage"><div id="deck">
 
 <!-- 1 -->
@@ -246,7 +258,7 @@ body.clip-on #num,body.clip-on #bar,body.clip-on #help{opacity:0}
 
 <!-- 1b: opening clip, Meir Ariel's "עברנו את פרעה" (built 3.7.2026; source in 07_וידאו). Plays when the slide opens. -->
 <section class="slide clip">
-<video src="assets/video/pharaoh.mp4" poster="assets/video/pharaoh-poster.jpg" preload="auto" playsinline></video>
+<video src="assets/video/pharaoh.mp4" poster="assets/video/pharaoh-poster.jpg" preload="auto" playsinline aria-label="קליפ פתיחה: מאיר אריאל, עברנו את פרעה. שורות השיר מופיעות על המסך."></video>
 <div class="clip-play"></div>
 </section>
 
@@ -909,9 +921,11 @@ body.clip-on #num,body.clip-on #bar,body.clip-on #help{opacity:0}
 <div class="cl-name st">תום הגלעדי</div>
 </div>
 <div class="cl-l st"><div class="qr-card"><img src="assets/qr.svg" alt="קוד לעמוד הקישורים"></div></div>
+<a class="a11y-link" href="accessibility.html">הצהרת נגישות</a>
 </section>
 
 </div></div>
+</main>
 <div id="bar"></div><div id="num"></div>
 <div id="help">→ קדימה · ← אחורה</div>
 
@@ -963,6 +977,8 @@ body.clip-on #num,body.clip-on #bar,body.clip-on #help{opacity:0}
   function go(n){ si = Math.max(0, Math.min(slides.length - 1, n)); fi = frags().length; render(); }
   // RTL: right arrow = forward, left arrow = back
   document.addEventListener('keydown', function(e){
+    // Enter and Space on a focused link keep their normal meaning (skip link, accessibility statement)
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.closest && e.target.closest('a, button')) { return; }
     switch (e.key) {
       case 'ArrowRight': case 'PageDown': case ' ': case 'Enter': e.preventDefault(); next(); break;
       case 'ArrowLeft': case 'PageUp': case 'Backspace': e.preventDefault(); prev(); break;
