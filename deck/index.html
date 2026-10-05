@@ -272,6 +272,19 @@ body.pv-on{background:#14110E;overflow:hidden}
 @keyframes lightOn{from{opacity:0}to{opacity:1}}
 .static .st,.static .f,.static .shaft,.static .pf{animation:none!important;transition:none!important}
 @media (prefers-reduced-motion:reduce){.f,.pf,.slide.enter .st,.slide.dark.on .shaft{transition:none;animation:none}}
+/* print or "save as PDF": one slide per page, everything revealed - a fallback copy that opens on any computer */
+@media print{
+  @page{size:1280px 720px;margin:0}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html,body{height:auto!important;overflow:visible!important;background:#F3EEE5!important}
+  #stage{position:static!important;display:block!important}
+  #deck{transform:none!important;width:1280px!important;height:auto!important;overflow:visible!important;box-shadow:none!important}
+  .slide{display:flex!important;position:relative!important;inset:auto!important;width:1280px;height:720px;break-after:page;page-break-after:always;overflow:hidden}
+  .f,.pf,.st{opacity:1!important;transform:none!important;filter:none!important;animation:none!important;transition:none!important}
+  .slide.clip video{display:none!important}
+  .slide.clip{background:#F3EEE5 url(assets/video/pharaoh-poster.jpg) center/contain no-repeat!important}
+  #bar,#num,#help,#fs,#pvb,#toast,.skip-link,.clip-play,aside.notes,.sr-only,#pv{display:none!important}
+}
 #bar{position:fixed;bottom:0;right:0;height:4px;background:#A3171D;transition:width .25s ease;z-index:9}
 #num{position:fixed;bottom:12px;left:18px;color:#5E5245;background:rgba(243,238,229,.92);padding:2px 8px;border-radius:4px;font-size:13px;letter-spacing:1px;z-index:9;font-family:'Alef',sans-serif}
 #help{position:fixed;bottom:12px;right:18px;color:#5E5245;background:rgba(243,238,229,.92);padding:2px 8px;border-radius:4px;font-size:13px;z-index:9;transition:opacity 1s ease}
@@ -1556,8 +1569,12 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
       }
       return false;
     }
+    // A fit measured while the window is hidden or being moved can come out at an extreme (Tom saw 12px and 40px on
+    // the same slide), so: skip measuring when it cannot be trusted, and re-check every 1.5 seconds and on every return.
+    var fitDirty = false, fitDegenerate = false, lastBox = '';
     function fitNotes(){
       var box = $('pvNotes'), width = box.clientWidth, best = null;
+      if (document.visibilityState === 'hidden' || box.clientHeight < 60 || width < 120) { fitDirty = true; return; }
       [1, 2, 3].forEach(function(n){
         if (n > 1 && width / n < 260) { return; }
         box.style.columnCount = n;
@@ -1569,13 +1586,39 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
         }
         if (ok && (!best || ok - (n - 1) > best.size - (best.cols - 1))) { best = { size: ok, cols: n }; }
       });
+      fitDegenerate = !best;
       if (!best) { best = { size: 12, cols: width / 3 >= 260 ? 3 : 2 }; }
       box.style.columnCount = best.cols;
       box.style.fontSize = best.size + 'px';
+      fitDirty = false;
+      lastBox = box.clientWidth + 'x' + box.clientHeight;
     }
     var fitTimer;
     addEventListener('resize', function(){ clearTimeout(fitTimer); fitTimer = setTimeout(fitNotes, 150); });
-    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(function(){ fitNotes(); }); }
+    addEventListener('focus', function(){ fitNotes(); });
+    document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible') { fitNotes(); } });
+    if (document.fonts) {
+      if (document.fonts.ready) { document.fonts.ready.then(function(){ fitNotes(); }); }
+      document.fonts.addEventListener && document.fonts.addEventListener('loadingdone', function(){ fitNotes(); });
+    }
+    // too much empty room while the font is below the maximum: the text ends in the top half of a single column,
+    // or never reaches the last (leftmost) column
+    function underfilled(box){
+      if ((parseInt(box.style.fontSize, 10) || 0) >= 40) { return false; }
+      var r = box.getBoundingClientRect(), kids = box.querySelectorAll('p, dt, dd'), maxBottom = r.top, minLeft = r.right;
+      for (var i = 0; i < kids.length; i++) {
+        var k = kids[i].getBoundingClientRect();
+        maxBottom = Math.max(maxBottom, k.bottom); minLeft = Math.min(minLeft, k.left);
+      }
+      var cols = parseInt(box.style.columnCount, 10) || 1;
+      return cols === 1 ? (maxBottom - r.top) < r.height * 0.55 : minLeft > r.left + r.width / cols;
+    }
+    // self-check: refit when the last fit could not be trusted, the box changed size, or the notes overflow or underfill
+    setInterval(function(){
+      if (document.visibilityState === 'hidden') { return; }
+      var box = $('pvNotes');
+      if (fitDirty || fitDegenerate || lastBox !== box.clientWidth + 'x' + box.clientHeight || overflows(box) || underfilled(box)) { fitNotes(); }
+    }, 1500);
     function show(){
       post(cur, { type: 'show', si: S.si, fi: S.fi });
       post(nxt, { type: 'show', si: Math.min(S.si + 1, slides.length - 1), fi: -1 });
