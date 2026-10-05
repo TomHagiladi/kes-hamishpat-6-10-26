@@ -1558,8 +1558,11 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
     nxt.src = base + '?embed&all#' + Math.min(S.si + 2, slides.length);
     function linked(){ return !!(host && !host.closed); }
     function post(frame, msg){ try { frame.contentWindow.postMessage(msg, '*'); } catch (err) {} }
-    // The notes must never need scrolling: try one, two and three columns, and for each find (by halving the range)
-    // the largest font size at which every line stays inside the box. Each extra column must earn its place by 1px.
+    // The notes must never need scrolling, and their size must never jump around. The font size is worked out from
+    // the amount of text and the size of the box - no fine measurement that could change from one moment to the next -
+    // and then one measured check may only make it smaller, so the text can never spill out of the box.
+    // The result is kept per slide and box size, and recalculated only on a new slide, a resized window or a return
+    // to the window. Never on a timer: a timer-driven re-check made the size flip back and forth on Tom's screen.
     function overflows(box){
       if (box.scrollHeight > box.clientHeight + 1 || box.scrollWidth > box.clientWidth + 1) { return true; }
       var r = box.getBoundingClientRect(), kids = box.querySelectorAll('p, dt, dd');
@@ -1569,56 +1572,35 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
       }
       return false;
     }
-    // A fit measured while the window is hidden or being moved can come out at an extreme (Tom saw 12px and 40px on
-    // the same slide), so: skip measuring when it cannot be trusted, and re-check every 1.5 seconds and on every return.
-    var fitDirty = false, fitDegenerate = false, lastBox = '';
+    var fitCache = {};
+    function estimate(box, chars, cols){
+      var w = box.clientWidth - 40, h = box.clientHeight - 20;
+      // a character takes about half the font size in width and the line height (1.36) in height;
+      // about a quarter of the room is left for line ends, the gaps between items and the gap between columns
+      var f = Math.sqrt(w * h * 0.72 / (chars * 0.52 * 1.36 * (cols > 1 ? 1.06 : 1)));
+      return Math.max(12, Math.min(40, Math.floor(f)));
+    }
     function fitNotes(){
-      var box = $('pvNotes'), width = box.clientWidth, best = null;
-      if (document.visibilityState === 'hidden' || box.clientHeight < 60 || width < 120) { fitDirty = true; return; }
-      [1, 2, 3].forEach(function(n){
-        if (n > 1 && width / n < 260) { return; }
-        box.style.columnCount = n;
-        var lo = 12, hi = 40, ok = 0;
-        while (lo <= hi) {
-          var mid = (lo + hi) >> 1;
-          box.style.fontSize = mid + 'px';
-          if (overflows(box)) { hi = mid - 1; } else { ok = mid; lo = mid + 1; }
-        }
-        if (ok && (!best || ok - (n - 1) > best.size - (best.cols - 1))) { best = { size: ok, cols: n }; }
-      });
-      fitDegenerate = !best;
-      if (!best) { best = { size: 12, cols: width / 3 >= 260 ? 3 : 2 }; }
-      box.style.columnCount = best.cols;
-      box.style.fontSize = best.size + 'px';
-      fitDirty = false;
-      lastBox = box.clientWidth + 'x' + box.clientHeight;
+      var box = $('pvNotes');
+      if (document.visibilityState === 'hidden' || box.clientHeight < 60 || box.clientWidth < 120) { return; }
+      var key = S.si + ':' + box.clientWidth + 'x' + box.clientHeight, hit = fitCache[key];
+      if (hit) { box.style.columnCount = hit.cols; box.style.fontSize = hit.size + 'px'; return; }
+      var chars = box.textContent.replace(/\s+/g, ' ').trim().length + box.querySelectorAll('p, dt, dd').length * 25;
+      var cols = 1, size = estimate(box, chars, 1);
+      // very long lines are hard to follow: on a wide box, a smaller font goes into two columns
+      if (box.clientWidth >= 900 && (box.clientWidth - 40) / (0.52 * size) > 95) { cols = 2; size = estimate(box, chars, 2); }
+      box.style.columnCount = cols;
+      box.style.fontSize = size + 'px';
+      var steps = 0;
+      while (steps < 12 && size > 12 && overflows(box)) { size--; steps++; box.style.fontSize = size + 'px'; }
+      // twelve steps down means the measuring itself was off (a hidden or moving window): do not keep that result
+      if (steps < 12) { fitCache[key] = { size: size, cols: cols }; }
     }
     var fitTimer;
     addEventListener('resize', function(){ clearTimeout(fitTimer); fitTimer = setTimeout(fitNotes, 150); });
     addEventListener('focus', function(){ fitNotes(); });
     document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible') { fitNotes(); } });
-    if (document.fonts) {
-      if (document.fonts.ready) { document.fonts.ready.then(function(){ fitNotes(); }); }
-      document.fonts.addEventListener && document.fonts.addEventListener('loadingdone', function(){ fitNotes(); });
-    }
-    // too much empty room while the font is below the maximum: the text ends in the top half of a single column,
-    // or never reaches the last (leftmost) column
-    function underfilled(box){
-      if ((parseInt(box.style.fontSize, 10) || 0) >= 40) { return false; }
-      var r = box.getBoundingClientRect(), kids = box.querySelectorAll('p, dt, dd'), maxBottom = r.top, minLeft = r.right;
-      for (var i = 0; i < kids.length; i++) {
-        var k = kids[i].getBoundingClientRect();
-        maxBottom = Math.max(maxBottom, k.bottom); minLeft = Math.min(minLeft, k.left);
-      }
-      var cols = parseInt(box.style.columnCount, 10) || 1;
-      return cols === 1 ? (maxBottom - r.top) < r.height * 0.55 : minLeft > r.left + r.width / cols;
-    }
-    // self-check: refit when the last fit could not be trusted, the box changed size, or the notes overflow or underfill
-    setInterval(function(){
-      if (document.visibilityState === 'hidden') { return; }
-      var box = $('pvNotes');
-      if (fitDirty || fitDegenerate || lastBox !== box.clientWidth + 'x' + box.clientHeight || overflows(box) || underfilled(box)) { fitNotes(); }
-    }, 1500);
+    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(function(){ fitCache = {}; fitNotes(); }); }
     function show(){
       post(cur, { type: 'show', si: S.si, fi: S.fi });
       post(nxt, { type: 'show', si: Math.min(S.si + 1, slides.length - 1), fi: -1 });
