@@ -218,6 +218,13 @@ body.clip-on #num,body.clip-on #bar,body.clip-on #help{opacity:0}
 #fs{position:fixed;top:12px;left:12px;z-index:20;width:44px;height:44px;border-radius:8px;border:1px solid #E3D9C7;background:rgba(243,238,229,.92);color:#2D251C;cursor:pointer;opacity:0;transition:opacity .4s ease;display:flex;align-items:center;justify-content:center;padding:0}
 #fs svg{width:22px;height:22px}
 #fs.show,#fs:focus-visible{opacity:1}
+/* presenter-view button, next to the full-screen button; and a short message that confirms what happened */
+#pvb{position:fixed;top:12px;left:64px;z-index:20;width:44px;height:44px;border-radius:8px;border:1px solid #E3D9C7;background:rgba(243,238,229,.92);color:#2D251C;cursor:pointer;opacity:0;transition:opacity .4s ease;display:flex;align-items:center;justify-content:center;padding:0}
+#pvb svg{width:22px;height:22px}
+#pvb.show,#pvb:focus-visible{opacity:1}
+#toast{position:fixed;top:68px;left:12px;z-index:30;max-width:470px;background:#2A241E;color:#FFF4DC;font:17px/1.5 'Alef',Arial,sans-serif;padding:10px 16px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:0;transition:opacity .3s ease;pointer-events:none}
+#toast.on{opacity:1}
+body.embed #pvb,body.embed #toast,body.pv-on #pvb,body.pv-on #toast{display:none}
 
 /* speaker notes live inside each slide and show only in the presenter view */
 .slide aside.notes{display:none}
@@ -1338,6 +1345,8 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
 <div id="bar"></div><div id="num"></div>
 <div id="help">→ קדימה · ← אחורה</div>
 <button id="fs" type="button" aria-label="מסך מלא" title="מסך מלא"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+<button id="pvb" type="button" aria-label="תצוגת מרצה" title="תצוגת מרצה"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg></button>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script>
 (function(){
@@ -1416,10 +1425,25 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
 
   // ===== Presenter view: P opens a second window; the two windows stay in step through messages =====
   var presenterWin = null;
-  function openPresenter(){
-    var url = location.href.split('#')[0].split('?')[0] + '?presenter#' + (si + 1);
-    presenterWin = window.open(url, 'kes-presenter', 'popup,width=1280,height=800');
+  var toastEl = document.getElementById('toast'), toastTimer;
+  function toast(msg, ms){
+    toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove('on'); }, ms || 4000);
   }
+  function openPresenter(){
+    // leave full screen first, so the new window cannot open hidden behind the slides
+    if (document.fullscreenElement) { try { document.exitFullscreen(); } catch (err) {} }
+    var url = location.href.split('#')[0].split('?')[0] + '?presenter&r=' + Date.now() + '#' + (si + 1);   // r= skips a stale cached copy
+    var w = window.open(url, 'kes-presenter', 'popup,width=1280,height=800');
+    if (!w) {
+      toast('הדפדפן חסם את חלון תצוגת המרצה. בשורת הכתובת יש סמל של חלון חסום: לחצו עליו, בחרו לאפשר תמיד, ונסו שוב.', 10000);
+      return;
+    }
+    presenterWin = w;
+    try { w.focus(); } catch (err) {}
+    toast('תצוגת המרצה נפתחה בחלון נפרד. גררו אותו למסך של המחשב.', 5000);
+  }
+  document.getElementById('pvb').addEventListener('click', function(e){ e.stopPropagation(); openPresenter(); this.blur(); });
   function sendState(){
     if (presenterWin && !presenterWin.closed) { try { presenterWin.postMessage({ type: 'state', si: si, fi: fi }, '*'); } catch (err) {} }
   }
@@ -1429,6 +1453,8 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
       if (d.type === 'show') { si = Math.max(0, Math.min(slides.length - 1, d.si)); fi = d.fi < 0 ? frags().length : d.fi; render(); }
       return;
     }
+    // the other way round: a presenter window that was opened first, and then opened this window, asks to attach
+    if (d.type === 'attach' && e.source) { presenterWin = e.source; sendState(); toast('תצוגת המרצה מחוברת.', 3000); return; }
     if (!presenterWin || e.source !== presenterWin) { return; }
     if (d.type === 'hello') { sendState(); }
     else if (d.type === 'cmd') {
@@ -1437,7 +1463,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
     }
   });
   // Full screen: the F key, or the button that appears in the corner when the mouse moves.
-  var fsBtn = document.getElementById('fs'), fsTimer;
+  var fsBtn = document.getElementById('fs'), pvBtn = document.getElementById('pvb'), fsTimer;
   function toggleFs(){
     if (document.fullscreenElement) { document.exitFullscreen(); return; }
     var p = document.documentElement.requestFullscreen();
@@ -1445,8 +1471,8 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
   }
   fsBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleFs(); fsBtn.blur(); });
   addEventListener('mousemove', function(){
-    fsBtn.classList.add('show'); clearTimeout(fsTimer);
-    fsTimer = setTimeout(function(){ fsBtn.classList.remove('show'); }, 2500);
+    fsBtn.classList.add('show'); pvBtn.classList.add('show'); clearTimeout(fsTimer);
+    fsTimer = setTimeout(function(){ fsBtn.classList.remove('show'); pvBtn.classList.remove('show'); }, 2500);
   });
   document.addEventListener('fullscreenchange', function(){
     var on = !!document.fullscreenElement;
@@ -1486,6 +1512,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
         '<span class="pv-left" id="pvLeft"></span>' +
         '<button type="button" class="pv-btn" id="pvPrev">הקודם</button>' +
         '<button type="button" class="pv-btn pv-go" id="pvNext">הבא</button>' +
+        '<button type="button" class="pv-btn" id="pvOpen">פתיחת חלון למקרן</button>' +
         '<span class="pv-link" id="pvLink"></span>' +
       '</div>' +
       '<div class="pv-main">' +
@@ -1517,7 +1544,22 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
       $('pvNotes').innerHTML = notes[S.si] || '<p class="pv-empty">אין הערות לשקף הזה.</p>';
       $('pvNotes').scrollTop = 0;
       $('pvLink').textContent = linked() ? 'מחובר למצגת שעל המקרן' : 'מצב חזרה: אין חלון מצגת מחובר';
+      $('pvOpen').style.display = linked() ? 'none' : '';
     }
+    // Opened on its own: this button opens the projector window from here, and the two windows attach to each other
+    var gotState = false;
+    $('pvOpen').addEventListener('click', function(){
+      var w = window.open(base + '?r=' + Date.now() + '#' + (S.si + 1), 'kes-audience', 'popup,width=1280,height=720');   // r= skips a stale cached copy
+      if (!w) { $('pvLink').textContent = 'הדפדפן חסם את החלון. אפשרו חלונות קופצים באתר הזה, ונסו שוב.'; return; }
+      host = w; gotState = false;
+      var tries = 0;
+      (function attach(){
+        if (!host || host.closed || gotState) { return; }
+        try { host.postMessage({ type: 'attach' }, '*'); } catch (err) {}
+        if (++tries < 60) { setTimeout(attach, 300); }
+      })();
+      show();
+    });
     cur.addEventListener('load', show);
     nxt.addEventListener('load', show);
     function cmd(c, n){
@@ -1529,7 +1571,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
     }
     addEventListener('message', function(e){
       var d = e.data || {};
-      if (d.type === 'state' && linked() && e.source === host) { S.si = d.si; S.fi = d.fi; show(); }
+      if (d.type === 'state' && linked() && e.source === host) { gotState = true; S.si = d.si; S.fi = d.fi; show(); }
     });
     document.addEventListener('keydown', function(e){
       if ((e.key === 'Enter' || e.key === ' ') && e.target.closest && e.target.closest('a, button')) { return; }
