@@ -257,15 +257,28 @@ body.pv-on{background:#14110E;overflow:hidden}
 .pv-nhead .pv-btn{flex:none;font-size:16px;padding:4px 14px}
 .pv-btn[aria-pressed="true"]{background:#F0CD80;border-color:#F0CD80;color:#14110E}
 .pv-notes-wrap{display:flex;flex-direction:column;gap:8px;min-height:0}
-/* the notes never scroll: a script picks the largest font size, in one, two or three columns, at which all of it fits */
-.pv-notes{flex:1;min-height:0;overflow:hidden;background:#1E1A16;border:1px solid #3A322A;border-radius:8px;padding:10px 16px;font-size:22px;line-height:1.36;column-gap:24px;column-rule:1px solid #3A322A;column-fill:auto}
-.pv-notes p,.pv-notes dd{font-size:1em;line-height:1.36;color:#F3EEE5}
-.pv-notes .gist{margin-bottom:.4em;font-size:1.05em}
-.pv-notes b,.pv-notes strong{color:#F0CD80}
-.pv-notes dt{font-weight:700;color:#F0CD80;margin-top:.4em;break-after:avoid}
-.pv-notes dd{margin:.05em 0 0}
-.pv-notes .example{margin-top:.4em;font-size:.92em;color:#CBBFA9}
+/* The notes sit on one "card" whose width is set in em, so the card's shape depends only on the text and the font,
+   never on the window. A script works out the one text size at which that card fills the box (see fitNotes).
+   The box can also scroll - a safety net that should never be needed - and says so when it can. */
+.pv-notes{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:#6B5F50 #1E1A16;background:#1E1A16;border:1px solid #3A322A;border-radius:8px;padding:10px 16px;font-size:22px;line-height:1.36}
+.pv-card{display:flow-root;width:30em;max-width:100%;line-height:1.36}   /* flow-root: the children's margins stay inside the card, so its height is the whole truth */
+.pv-card p,.pv-card dd{font-size:1em;line-height:1.36;color:#F3EEE5}
+.pv-card p{margin:0 0 .55em}
+.pv-card dl{margin:.25em 0 0}
+.pv-card .gist{margin-bottom:.4em;font-size:1.05em}
+.pv-card b,.pv-card strong{color:#F0CD80}
+.pv-card dt{font-weight:700;color:#F0CD80;margin-top:.4em}
+.pv-card dd{margin:.05em 0 0}
+.pv-card .example{margin-top:.4em;font-size:.92em;color:#CBBFA9}
 .pv-empty{color:#A89C8A}
+/* shown at the bottom of the box only while there is more text below the edge */
+.pv-more{position:sticky;bottom:0;margin:0 -16px;padding:18px 0 6px;text-align:center;font-size:15px;color:#F0CD80;background:linear-gradient(to top,#1E1A16 60%,rgba(30,26,22,0));pointer-events:none}
+.pv-more[hidden]{display:none}
+/* the speaker's own size control: bigger or smaller than the automatic size, remembered between sessions */
+.pv-size{display:flex;align-items:center;gap:6px;flex:none}
+.pv-nhead .pv-size .pv-btn{min-width:44px;padding:4px 10px;font-size:20px;font-weight:700;font-family:Arial,sans-serif}
+.pv-zoom{font-family:Arial,sans-serif;font-size:14px;color:#CBBFA9;min-width:3.2em;text-align:center}
+.pv-zoom:empty{display:none}
 
 /* ================= MECHANICS ================= */
 .f{opacity:0;transform:translateY(12px);filter:blur(3px);transition:opacity .5s ease,transform .5s ease,filter .5s ease}
@@ -763,7 +776,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
 <div class="panel f"><div class="lab">מומחה מטעם בית המשפט</div><ul class="dia"><li class="f">מזוהה: שם, הכשרה, ניסיון</li><li class="f">חותם - ונושא באחריות לדבריו</li><li class="f">גלוי לצדדים - ועומד לחקירה</li></ul></div>
 <div class="panel dkp f"><div class="lab">התייעצות עם מכונה</div><ul class="dia"><li class="f">אין שם, אין חתימה, אין כתובת</li><li class="f">נשמעת בטוחה - ואיש אינו ערב לה</li><li class="f">מחוץ לתיק - ואין את מי לחקור</li></ul></div>
 </div>
-<p class="closer f">שכנוע הוא תכונה של פלט. <span class="r">הצדקה היא מעמד של מעשה.</span></p>
+<p class="closer f">שכנוע הוא תכונה של פלט. <span class="r">הצדקה היא מעמד של עושה.</span></p>
 </div>
 <aside class="notes">
 <p class="gist"><b>בשורה אחת:</b> בסיפור הזה הייתי במקומו של שופט שנדרש להכריע בתחום שאינו מכיר ונשען על מכונה - ומולי עמד איש מקצוע אנושי, שצדק.</p>
@@ -784,7 +797,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
 <dd>בסיפור שלי, איש המקצוע הסתייג מראש: "אין שום אחריות שהבעיה תיפתר". המכתבים שנכתבו בעזרת המכונה קבעו בביטחון: "זו תקלת חומרה ביחידה עצמה". ולמכונה אין מה להפסיד - אי אפשר להאשים אותה, להעביר אותה מכהונתה או לדרוש ממנה חשבון נפש.</dd>
 <dt>מחוץ לתיק - ואין את מי לחקור</dt>
 <dd>והעצה הזו לא נכנסת לתיק: הצדדים לא רואים אותה, לא יכולים להשיב עליה, ואין את מי להעמיד לחקירה. בעל הדין זכאי לדעת מדוע הופעל נגדו כוח - וכאן הוא אינו יודע אפילו על מה להשיב.</dd>
-<dt>שכנוע הוא תכונה של פלט. הצדקה היא מעמד של מעשה.</dt>
+<dt>שכנוע הוא תכונה של פלט. הצדקה היא מעמד של עושה.</dt>
 <dd>בספרות הוצע מבחן: אם תוכנה תכתוב חוות דעת משכנעות, שבשיפוט עיוור וחוזר לא ייפלו מאלה של שופטים בשר ודם, די בכך כדי לקבל אותה כשופטת. המבחן הזה היה מכריע אילו היה המשפט תחרות כתיבה - ובתחרות כתיבה על תחנת העגינה, אני ניצחתי. אבל זו הייתה שאלה של עובדה, והפסדתי; והמשפט אינו תחרות כתיבה - הוא נטילת אחריות.</dd>
 </dl>
 </aside>
@@ -1599,9 +1612,14 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
         '<div class="pv-notes-wrap">' +
           '<div class="pv-nhead">' +
             '<div class="pv-title" id="pvTitle"></div>' +
+            '<div class="pv-size">' +
+              '<button type="button" class="pv-btn" id="pvSmaller" aria-label="כתב קטן יותר" title="כתב קטן יותר (גם מקש מינוס)">−</button>' +
+              '<span class="pv-zoom" id="pvZoom"></span>' +
+              '<button type="button" class="pv-btn" id="pvBigger" aria-label="כתב גדול יותר" title="כתב גדול יותר (גם מקש פלוס). אם ההערות לא נכנסות, אפשר לגלול. המקש 0 מחזיר לגודל האוטומטי">+</button>' +
+            '</div>' +
             '<button type="button" class="pv-btn" id="pvAll" aria-pressed="false" title="כל ההערות של השקף, במקום רק ההסבר של הסעיף שנחשף עכשיו">כל ההערות</button>' +
           '</div>' +
-          '<div class="pv-notes" id="pvNotes"></div>' +
+          '<div class="pv-notes" id="pvNotes"><div class="pv-card" id="pvCard"></div><div class="pv-more" id="pvMore" hidden>▼ יש עוד למטה, אפשר לגלול</div></div>' +
         '</div>' +
       '</div>';
     document.body.appendChild(pv);
@@ -1614,64 +1632,66 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
     nxt.src = base + '?embed&all#' + Math.min(S.si + 2, slides.length);
     function linked(){ return !!(host && !host.closed); }
     function post(frame, msg){ try { frame.contentWindow.postMessage(msg, '*'); } catch (err) {} }
-    // The notes must never need scrolling, never spill out of the box, and never jump around. For each view
-    // (slide, click and box size) the largest font that fits with half a line to spare is found by halving the
-    // range from 12 to 60 pixels, and kept. It is worked out again only when something really changed: a new view,
-    // a box of another size (window, zoom, a title on two lines), a font that finished loading, or a window that
-    // came back into sight. Never on a timer: a timer-driven re-check made the size flip back and forth on Tom's screen.
-    var MINF = 12, MAXF = 60;
-    // The strip of the window below the bottom of the screen (or behind the taskbar) cannot be read, so the notes
-    // may not count on it. Windows draws an invisible frame of about 8 pixels around a window, hence the allowance.
-    function belowScreen(){
-      try {
-        var s = window.screen, over = window.screenY + window.outerHeight - ((s.availTop || 0) + s.availHeight) - 8;
-        return over > 0 && over < innerHeight * 0.4 && !document.fullscreenElement ? Math.ceil(over) : 0;
-      } catch (err) { return 0; }
+    // ===== The size of the notes: one scaled card, worked out by arithmetic, not by trial and error =====
+    // The notes sit on a card whose width is given in em (so many letters per line). The card's shape therefore
+    // depends only on the text and the font, never on the window - exactly like the slides, which are laid out at
+    // 1280x720 and only scaled. For each of a few line lengths (short lines to long ones) the card's natural height
+    // is read once; the font size that makes that card exactly fill the box is then a division, and the line length
+    // that allows the largest font wins. Nothing here looks at the screen, the window position or the children's
+    // positions, and nothing is cached: the same text in the same box always gives the same size. Should the
+    // text still not fit (the smallest size, or the speaker's own enlargement), the box scrolls and says so.
+    var F0 = 32, MINF = 14, MAXF = 56, WIDTHS = [14, 18, 23, 29, 36, 44, 54, 66];   // card widths, in em
+    var userZoom = 1;   // the speaker's own factor on top of the automatic size, kept between sessions
+    try { userZoom = Math.min(2, Math.max(0.5, parseFloat(localStorage.getItem('kes-pv-zoom')) || 1)); } catch (err) {}
+    var lastFit = '', viewKey = 'all';   // viewKey: which notes are on the card now ('all', or the click number)
+    function moreHint(){
+      var box = $('pvNotes'), more = $('pvMore');
+      more.hidden = !(box.scrollHeight > box.clientHeight + 2) || box.scrollTop + box.clientHeight >= box.scrollHeight - 4;
     }
-    var cut = 0;
-    function overflows(box, spare){
-      if (box.scrollHeight > box.clientHeight + 1 || box.scrollWidth > box.clientWidth + 1) { return true; }
-      var r = box.getBoundingClientRect(), kids = box.querySelectorAll('p, dt, dd');
-      var bottom = Math.min(r.bottom, innerHeight - cut) + 1 - (spare || 0);
-      for (var i = 0; i < kids.length; i++) {
-        var k = kids[i].getBoundingClientRect();
-        if (k.left < r.left - 1 || k.right > r.right + 1 || k.bottom > bottom) { return true; }
+    function fitNotes(force){
+      var box = $('pvNotes'), card = $('pvCard'), more = $('pvMore');
+      if (!card || !card.textContent.trim()) { return; }
+      var cs = getComputedStyle(box);
+      var W = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      var H = box.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      if (W < 100 || H < 50) { return; }
+      var key = [S.si, viewKey, Math.round(W), Math.round(H), userZoom].join(':');
+      if (!force && key === lastFit) { return; }
+      lastFit = key;
+      more.hidden = true;
+      var best = { f: 0, w: WIDTHS[0] }, i, f, h0, fi;
+      for (i = 0; i < WIDTHS.length; i++) {
+        if (WIDTHS[i] * MINF > W) { break; }   // lines this long would not fit even in the smallest print
+        fi = Math.min(F0, W / WIDTHS[i]);      // a reference size at which this card is no wider than the box
+        card.style.fontSize = fi + 'px';
+        card.style.width = WIDTHS[i] + 'em';
+        h0 = card.getBoundingClientRect().height;
+        if (h0 < 1) { continue; }
+        f = Math.min(W / WIDTHS[i], H * fi / h0);   // the size at which the card is exactly as wide, or as tall, as the box
+        if (f > best.f) { best = { f: f, w: WIDTHS[i] }; }
       }
-      return false;
-    }
-    function largest(box, cols){
-      box.style.columnCount = cols > 1 ? cols : '';
-      var lo = MINF, hi = MAXF, mid;
-      while (lo < hi) {
-        mid = Math.ceil((lo + hi) / 2);
-        box.style.fontSize = mid + 'px';
-        if (overflows(box, mid * 0.68)) { hi = mid - 1; } else { lo = mid; }
+      f = Math.max(MINF, Math.min(MAXF, best.f * 0.97)) * userZoom;   // 3% in hand for rounding
+      var w = Math.min(best.w, W / f);   // an enlarged card keeps to the width of the box and grows downwards (scroll)
+      card.style.width = w + 'em';
+      card.style.fontSize = f.toFixed(2) + 'px';
+      // once in a while a line breaks differently at the final size than at the reference size: a small step down
+      for (i = 0; i < 4 && userZoom <= 1 && f > MINF && card.getBoundingClientRect().height > H; i++) {
+        f = Math.max(MINF, f * 0.96); card.style.fontSize = f.toFixed(2) + 'px';
       }
-      return lo;
+      box.scrollTop = 0;
+      moreHint();
     }
-    var fitCache = {}, viewKey = 'all';
-    function fitNotes(fresh){
-      var box = $('pvNotes');
-      if (box.clientHeight < 60 || box.clientWidth < 120) { return; }
-      cut = belowScreen();
-      var key = [S.si, viewKey, box.clientWidth, box.clientHeight, cut].join(':'), hit = !fresh && fitCache[key];
-      if (hit) { box.style.columnCount = hit.cols > 1 ? hit.cols : ''; box.style.fontSize = hit.size + 'px'; return; }
-      var cols = 1, size = largest(box, 1), two;
-      // on a wide box, very long lines are hard to follow: two columns, when they allow a larger font
-      if (box.clientWidth >= 900 && (box.clientWidth - 40) / (0.45 * size) > 95) {
-        two = largest(box, 2);
-        if (two > size) { cols = 2; size = two; }
-      }
-      box.style.columnCount = cols > 1 ? cols : '';
-      box.style.fontSize = size + 'px';
-      // never leave the text spilling over, even without the spare half line
-      while (size > MINF && overflows(box)) { size--; box.style.fontSize = size + 'px'; }
-      // a window out of sight may measure oddly: the result is shown, but kept only when the window is in sight
-      if (document.visibilityState !== 'hidden') { fitCache[key] = { size: size, cols: cols }; }
+    function setZoom(z){
+      userZoom = Math.min(2, Math.max(0.5, Math.round(z * 20) / 20));
+      try { localStorage.setItem('kes-pv-zoom', String(userZoom)); } catch (err) {}
+      $('pvZoom').textContent = userZoom === 1 ? '' : Math.round(userZoom * 100) + '%';
+      fitNotes(true);
     }
+    $('pvZoom').textContent = userZoom === 1 ? '' : Math.round(userZoom * 100) + '%';
+    $('pvNotes').addEventListener('scroll', moreHint);
     var fitTimer;
-    function refitAll(){ fitCache = {}; fitNotes(true); }
-    addEventListener('resize', function(){ clearTimeout(fitTimer); fitTimer = setTimeout(fitNotes, 150); });
+    function refitAll(){ fitNotes(true); }
+    addEventListener('resize', function(){ clearTimeout(fitTimer); fitTimer = setTimeout(function(){ fitNotes(); }, 120); });
     addEventListener('focus', function(){ fitNotes(); });
     document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible') { fitNotes(true); } });
     if (document.fonts) {
@@ -1681,11 +1701,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
     }
     // the box can change size while the window does not (a title on two lines, a wrapped top bar)
     if (window.ResizeObserver) {
-      var seenBox = '';
-      new ResizeObserver(function(){
-        var b = $('pvNotes'), s = b.clientWidth + 'x' + b.clientHeight;
-        if (s !== seenBox) { seenBox = s; requestAnimationFrame(function(){ fitNotes(); }); }
-      }).observe($('pvNotes'));
+      new ResizeObserver(function(){ requestAnimationFrame(function(){ fitNotes(); }); }).observe($('pvNotes'));
     }
     function show(){
       post(cur, { type: 'show', si: S.si, fi: S.fi });
@@ -1699,7 +1715,7 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
       if (view.key !== viewKey || $('pvNotes').getAttribute('data-si') !== String(S.si)) {
         viewKey = view.key;
         $('pvNotes').setAttribute('data-si', S.si);
-        $('pvNotes').innerHTML = view.html || '<p class="pv-empty">אין הערות לשקף הזה.</p>';
+        $('pvCard').innerHTML = view.html || '<p class="pv-empty">אין הערות לשקף הזה.</p>';
       }
       $('pvAll').style.visibility = steps[S.si] ? 'visible' : 'hidden';
       $('pvLink').textContent = linked() ? 'מחובר למצגת שעל המקרן' : 'מצב חזרה: אין חלון מצגת מחובר';
@@ -1742,11 +1758,17 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
         case 'ArrowUp': e.preventDefault(); cmd('jump', -1); break;
         case 'Home': e.preventDefault(); cmd('go', 0); break;
         case 'End': e.preventDefault(); cmd('go', slides.length - 1); break;
+        case '+': case '=': e.preventDefault(); setZoom(userZoom * 1.15); break;
+        case '-': case '_': e.preventDefault(); setZoom(userZoom / 1.15); break;
+        case '0': e.preventDefault(); setZoom(1); break;
       }
     });
     $('pvNext').addEventListener('click', function(){ cmd('next'); });
     $('pvPrev').addEventListener('click', function(){ cmd('prev'); });
     // all the notes of the slide at once, or only the explanation of the item on screen now (the default)
+    // bigger or smaller print than the automatic size (the keys + - and 0 do the same); a bigger size may need scrolling
+    $('pvBigger').addEventListener('click', function(){ setZoom(userZoom * 1.15); this.blur(); });
+    $('pvSmaller').addEventListener('click', function(){ setZoom(userZoom / 1.15); this.blur(); });
     $('pvAll').addEventListener('click', function(){
       S.all = !S.all;
       this.setAttribute('aria-pressed', S.all ? 'true' : 'false');
